@@ -2,41 +2,8 @@
 Cookie's Console Engine
 
 This engine makes it easier to draw to the screen
-How to use th engine:
-#include "Engine.h"
 
-class game : public CookieConsoleEngine
-{
-	//now that you inherit from the main class you need to overwrite 2 methods
-	virtual void RunOnce()
-	{
-		//this method only runs once, when the program starts
-	}
-
-	virtual void Main(float ElapsedTime)
-	{
-		//this method runs each tick
-
-		//just a for loop inside a for loop which paints the screen to random colours
-		for (int y = 0; y < ScreenHeight; y++)
-			for (int x = 0; x < ScreenWidth; x++)
-				Draw(x, y, rand() % 500, ' ');
-
-		//Render(); just renders the screen
-		Render();
-	}
-	
-};
-
-//before we run the program we need to actually initilize the console screen
-int main()
-{
-	game game;
-	game.ConsoleInit(70, 40, "Hello World!", 8);
-	return 0;
-}
-
-also there might be bugs
+there is detailed documentation on the github page
 */
 
 #pragma once

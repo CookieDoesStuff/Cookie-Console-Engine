@@ -3,7 +3,7 @@ Cookie's Console Engine
 
 This engine makes it easier to draw to the screen
 
-there is detailed documentation on the github page
+detailed documentation is on the git hub page
 */
 
 #pragma once
@@ -164,7 +164,7 @@ private:
 	}
 public:
 
-	int ConsoleInit(int Width = 120, int Height = 30, LPCWSTR Title = L"Title", int ConsoleFontSize = 8)
+	int ConsoleInit(int Width = 120, int Height = 30, LPCWSTR Title = L"Title", int ConsoleFontSize = 8, bool ResizeFont = true)
 	{
 		ScreenWidth = Width;
 		ScreenHeight = Height;
@@ -184,17 +184,35 @@ public:
 		if (!SetConsoleActiveScreenBuffer(Console))
 			return Error(L"Could not activate the screen buffer");
 
-		CONSOLE_FONT_INFOEX cfi;
-		cfi.cbSize = sizeof(cfi);
-		cfi.nFont = 0;
-		cfi.dwFontSize.X = ConsoleFontSize;
-		cfi.dwFontSize.Y = ConsoleFontSize;
-		cfi.FontFamily = FF_DONTCARE;
-		cfi.FontWeight = FW_NORMAL;
+		if (ResizeFont)
+		{
+			CONSOLE_FONT_INFOEX cfi;
+			cfi.cbSize = sizeof(cfi);
+			cfi.nFont = 0;
+			cfi.dwFontSize.X = ConsoleFontSize;
+			cfi.dwFontSize.Y = ConsoleFontSize;
+			cfi.FontFamily = FF_DONTCARE;
+			cfi.FontWeight = FW_NORMAL;
 
-		wcscpy_s(cfi.FaceName, L"Consolas");
-		if (!SetCurrentConsoleFontEx(Console, false, &cfi))
-			return Error(L"Could not set the font size");
+			wcscpy_s(cfi.FaceName, L"Consolas");
+			if (!SetCurrentConsoleFontEx(Console, false, &cfi))
+				return Error(L"Could not set the font size");
+		}
+		else
+		{
+			CONSOLE_FONT_INFOEX cfi;
+			cfi.cbSize = sizeof(cfi);
+			cfi.nFont = 0;
+			cfi.dwFontSize.X = FontSize / 2;
+			cfi.dwFontSize.Y = FontSize;
+			cfi.FontFamily = FF_DONTCARE;
+			cfi.FontWeight = FW_NORMAL;
+
+			wcscpy_s(cfi.FaceName, L"Consolas");
+			if (!SetCurrentConsoleFontEx(Console, false, &cfi))
+				return Error(L"Could not set the font size");
+		}
+
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(Console, &csbi))

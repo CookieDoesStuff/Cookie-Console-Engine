@@ -4,5 +4,4 @@ a header file written in c++, makes it easier to write, draw, and make full flet
 Also there might be bugs
 # How to Use the Engine
 First of all create an empty c++ project from visual studio.
-Create a source file and also add Engine.h file to Cookie-Console-Enginethe source files.
-The example code is in the HelloWorld.cpp
+Create a source file and also add Engine.h to the source files.

@@ -5,3 +5,5 @@ Also there might be bugs
 # How to Use the Engine
 First of all create an empty c++ project from visual studio.
 Create a source file and also add Engine.h to the source files.
+# How the Engine Pipline Actually work
+![pipline](https://user-images.githubusercontent.com/80379985/188330279-e2801cfc-679c-46e0-8e28-5475b90ac4e9.png)

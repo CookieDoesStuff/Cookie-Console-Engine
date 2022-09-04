@@ -1,7 +1,7 @@
 //include the header file
 #include "Engine.h"
 
-//make a class that inherits from the engine
+//make a class that inherits publicly from the engine
 class game : public CookieConsoleEngine 
 {
  	//in this part we need to overwrite 2 methods so that our program works

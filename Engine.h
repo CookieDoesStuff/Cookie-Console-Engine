@@ -1,11 +1,3 @@
-/*
-Cookie's Console Engine
-
-This engine makes it easier to draw to the screen
-
-detailed documentation is on the git hub page
-*/
-
 #pragma once
 
 #include <iostream>
@@ -13,6 +5,8 @@ detailed documentation is on the git hub page
 #include <cwchar>
 #include <chrono>
 #include <string>
+#include <memory>
+#include <array>
 
 enum COLOUR
 {
@@ -47,7 +41,7 @@ enum COLOUR
 	BG_RED = 0x00C0,
 	BG_MAGENTA = 0x00D0,
 	BG_YELLOW = 0x00E0,
-	BG_WHITE = 0x00F0
+	BG_WHITE = 0x00F0 
 };
 
 enum BlockType
@@ -95,7 +89,7 @@ public:
 			}
 	}
 
-	void Fill(int StartX, int StartY, int EndX, int EndY, int colour, wchar_t CHAR = BlockTypeFull)
+	void Fill(int StartX, int StartY, int EndX, int EndY, int colour, wchar_t CHAR = ' ')
 	{
 		for (int y = StartY; y < EndY; y++)
 			for (int x = StartX; x < EndX; x++)
@@ -104,14 +98,14 @@ public:
 			}
 	}
 
-	int Draw(int x, int y, int colour, wchar_t CHAR = BlockTypeFull)
+	int Draw(int x, int y, int colour, wchar_t CHAR = ' ')
 	{
-		if (x > ScreenWidth || x < 0 || y > ScreenHeight || y < 0)
-			return 0;
-
-		Canvas[y * ScreenWidth + x].Char.UnicodeChar = CHAR;
-		Canvas[y * ScreenWidth + x].Attributes = colour;
-		Colour[y * ScreenWidth + x] = colour;
+		if (x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
+		{
+			Canvas[y * ScreenWidth + x].Char.UnicodeChar = CHAR;
+			Canvas[y * ScreenWidth + x].Attributes = colour;
+			Colour[y * ScreenWidth + x] = colour;
+		}
 		return 1;
 	}
 
@@ -141,6 +135,14 @@ public:
 		return Colour[y * ScreenWidth + x];
 	}
 
+	void DrawRect(int StartX, int StartY, int EndX, int EndY, int colour, char CHAR = ' ')
+	{
+		Fill(StartX, StartY, EndX, StartY + 1, colour, CHAR);
+		Fill(StartX, StartY, StartX + 1, EndY, colour, CHAR);
+		Fill(StartX, EndY, EndX + 1, EndY + 1, colour, CHAR);
+		Fill(EndX, StartY, EndX + 1, EndY, colour, CHAR);
+	}
+
 	virtual void RunOnce() = 0;
 	virtual void Main(float ElapsedTime) = 0;
 private:
@@ -164,7 +166,61 @@ private:
 	}
 public:
 
-	int ConsoleInit(int Width = 120, int Height = 30, LPCWSTR Title = L"Title", int ConsoleFontSize = 8, bool ResizeFont = true)
+	int ChangeConsoleAttribute(LPCWSTR Title, int Width, int Height, int ConsoleFontSize, bool ResizeFont)
+	{
+		SetConsoleWindowInfo(Console, TRUE, &r);
+
+		COORD coord = { (short)ScreenWidth, (short)ScreenHeight };
+		if (!SetConsoleScreenBufferSize(Console, coord))
+			Error(L"Could not set the console screen buffer size");
+
+		if (!SetConsoleActiveScreenBuffer(Console))
+			return Error(L"Could not activate the screen buffer");
+
+		if (ResizeFont)
+		{
+			CONSOLE_FONT_INFOEX cfi;
+			cfi.cbSize = sizeof(cfi);
+			cfi.nFont = 0;
+			cfi.dwFontSize.X = ConsoleFontSize;
+			cfi.dwFontSize.Y = ConsoleFontSize;
+			cfi.FontFamily = FF_DONTCARE;
+			cfi.FontWeight = FW_NORMAL;
+
+			wcscpy_s(cfi.FaceName, L"Consolas");
+			if (!SetCurrentConsoleFontEx(Console, false, &cfi))
+				return Error(L"Could not set the font size");
+		}
+		else
+		{
+			CONSOLE_FONT_INFOEX cfi;
+			cfi.cbSize = sizeof(cfi);
+			cfi.nFont = 0;
+			cfi.dwFontSize.X = FontSize / 2;
+			cfi.dwFontSize.Y = FontSize;
+			cfi.FontFamily = FF_DONTCARE;
+			cfi.FontWeight = FW_NORMAL;
+
+			wcscpy_s(cfi.FaceName, L"Consolas");
+			if (!SetCurrentConsoleFontEx(Console, false, &cfi))
+				return Error(L"Could not set the font size");
+		}
+
+
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(Console, &csbi))
+			return Error(L"Could not get the console screen buffer info");
+		if (ScreenHeight > csbi.dwMaximumWindowSize.Y)
+			return Error(L"Font Height Too Big");
+		if (ScreenWidth > csbi.dwMaximumWindowSize.X)
+			return Error(L"Font Width is too big");
+
+		r = { 0, 0, (short)ScreenWidth - 1, (short)ScreenHeight - 1 };
+		if (!SetConsoleWindowInfo(Console, TRUE, &r))
+			return Error(L"Could not set the console window info");
+	}
+
+	int ConsoleInit(LPCWSTR Title, int Width = 120, int Height = 90, int ConsoleFontSize = 8, bool ResizeFont = true)
 	{
 		ScreenWidth = Width;
 		ScreenHeight = Height;

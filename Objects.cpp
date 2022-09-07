@@ -11,7 +11,7 @@ class game : public CookieConsoleEngine
 		Player.y = ScreenHeight / 2;
 		int newline = 0;
     //make the object image a 16 by 16 cube
-		for (int i = 0; i < 255; i++)
+		for (int i = 0; i < 254; i++)
 		{
 			newline++;
 			if (newline == 16)
@@ -22,7 +22,7 @@ class game : public CookieConsoleEngine
 			else
 				Player.Image[i] = BG_GREEN;
 		}
-		Player.Image[256] = IMAGE_END;
+		Player.Image[255] = IMAGE_END;
 	}
 	virtual void Main(float ElapsedTime)
 	{

@@ -159,22 +159,25 @@ public:
 	};
 
 	void DrawObject(Object Object)
-	{
-		int x = Object.x;
-		int y = Object.y;
-		for (int i = 0; i < 256; i++)
 		{
-			if (Object.Image[i] == IMAGE_NEW_LINE)
-				y++;
-			if (Object.Image[i] == IMAGE_END)
-				break;
-			if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
+			int x = Object.x;
+			int y = Object.y;
+			for (int i = 0; i < 256; i++)
 			{
-				x++;
-				Draw(x, y, Object.Image[i]);
+				if (Object.Image[i] == IMAGE_NEW_LINE)
+				{
+					y++;
+					x = Object.x;
+				}
+				if (Object.Image[i] == IMAGE_END)
+					break;
+				if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
+				{
+					x++;
+					Draw(x, y, Object.Image[i]);
+				}
 			}
 		}
-	}
 
 	virtual void RunOnce() = 0;
 	virtual void Main(float ElapsedTime) = 0;

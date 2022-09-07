@@ -1,12 +1,13 @@
+/*
+Cookie's Console Engine
+*/
+
 #pragma once
 
 #include <iostream>
 #include <Windows.h>
-#include <cwchar>
 #include <chrono>
 #include <string>
-#include <memory>
-#include <array>
 
 enum COLOUR
 {
@@ -41,21 +42,28 @@ enum COLOUR
 	BG_RED = 0x00C0,
 	BG_MAGENTA = 0x00D0,
 	BG_YELLOW = 0x00E0,
-	BG_WHITE = 0x00F0 
+	BG_WHITE = 0x00F0,
 };
 
-enum BlockType
+enum IMAGEPROPERTIES
 {
-	BlockTypeFull = 0x2588,
-	BlockTypeShaded1 = 0x00002593,
-	BlockTypeShaded2 = 0x2592,
-	BlockTypeShaded3 = 0x2591
+	IMAGE_END = 0x656E64,
+	IMAGE_NEW_LINE = 0x6E6C
+};
+
+enum BLOCKTYPE
+{
+	BLOCK_TYPE_FULL = 0x2588,
+	BLOCK_TYPE_SHADED1 = 0x00002593,
+	BLOCK_TYPE_SHADED2 = 0x2592,
+	BLOCK_TYPE_SHADED3 = 0x2591
 };
 
 class CookieConsoleEngine
 {
 private:
 	SMALL_RECT r = { 0, 0, 1, 1 };
+	HANDLE ConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 	int Error(const wchar_t* Error)
 	{
 		wchar_t buf[256];
@@ -141,6 +149,31 @@ public:
 		Fill(StartX, StartY, StartX + 1, EndY, colour, CHAR);
 		Fill(StartX, EndY, EndX + 1, EndY + 1, colour, CHAR);
 		Fill(EndX, StartY, EndX + 1, EndY, colour, CHAR);
+	}
+
+	struct Object
+	{
+		float x, y;
+		int Image[256];
+		bool Centered = true;
+	};
+
+	void DrawObject(Object Object)
+	{
+		int x = Object.x;
+		int y = Object.y;
+		for (int i = 0; i < 256; i++)
+		{
+			if (Object.Image[i] == IMAGE_NEW_LINE)
+				y++;
+			if (Object.Image[i] == IMAGE_END)
+				break;
+			if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
+			{
+				x++;
+				Draw(x, y, Object.Image[i]);
+			}
+		}
 	}
 
 	virtual void RunOnce() = 0;
@@ -281,6 +314,8 @@ public:
 		r = { 0, 0, (short)ScreenWidth - 1, (short)ScreenHeight - 1 };
 		if (!SetConsoleWindowInfo(Console, TRUE, &r))
 			return Error(L"Could not set the console window info");
+		if (!SetConsoleMode(ConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
+			return Error(L"Could not enable mouse input");
 
 		for (int i = 0; i < ScreenWidth * ScreenHeight; i++)
 		{

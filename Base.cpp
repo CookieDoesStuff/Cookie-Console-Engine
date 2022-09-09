@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-class game : public CookieConsoleEngine
+class window : public CookieConsoleEngine
 {
 	virtual void RunOnce()
 	{
@@ -14,7 +14,7 @@ class game : public CookieConsoleEngine
 
 int main()
 {
-	game game;
-	game.ConsoleInit(L"Title");
+	window window;
+	window.ConsoleInit(L"Title");
 	return 0;
 }

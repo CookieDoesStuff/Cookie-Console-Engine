@@ -2,7 +2,7 @@
 #include "Engine.h"
 
 //make a class that inherits publicly from the engine
-class game : public CookieConsoleEngine 
+class window : public CookieConsoleEngine 
 {
  	//in this part we need to overwrite 2 methods so that our program works
 
@@ -25,8 +25,8 @@ class game : public CookieConsoleEngine
 
 int main()
 {
-	game game;
+	window window;
   	//create the console window in this case im creating a 120 by 120 window with the title of "Hello World!" and resizing the font to 8 so each character will be 8 by 8
-	game.ConsoleInit(120, 120, L"Hello World!", 8);
+	window.ConsoleInit(120, 120, L"Hello World!", 8);
 	return 0;
 }

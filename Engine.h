@@ -1,5 +1,7 @@
 /*
-Cookie's Console Engine
+TODO:
+fix Object Importing(fixed)(there might be bugs though Im makingn an image editor for the ImportObjectImage method)
+add gui
 */
 
 #pragma once
@@ -8,6 +10,7 @@ Cookie's Console Engine
 #include <Windows.h>
 #include <chrono>
 #include <string>
+#include <fstream>
 
 enum COLOUR
 {
@@ -159,25 +162,56 @@ public:
 	};
 
 	void DrawObject(Object Object)
+	{
+		int x = Object.x;
+		int y = Object.y;
+		for (int i = 0; i < 255; i++)
 		{
-			int x = Object.x;
-			int y = Object.y;
-			for (int i = 0; i < 256; i++)
+			if (Object.Image[i] == IMAGE_NEW_LINE)
 			{
-				if (Object.Image[i] == IMAGE_NEW_LINE)
-				{
-					y++;
-					x = Object.x;
-				}
-				if (Object.Image[i] == IMAGE_END)
-					break;
-				if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
-				{
-					x++;
-					Draw(x, y, Object.Image[i]);
-				}
+				y++;
+				x = Object.x;
+			}
+			if (Object.Image[i] == IMAGE_END)
+				break;
+			if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
+			{
+				x++;
+				Draw(x, y, Object.Image[i]);
 			}
 		}
+	}
+
+	Object ImportObjectImage(Object Obj, std::wstring Path, char Seperator = ' ')
+	{
+		std::ifstream FileObject;
+		std::string ObjectImage;
+		std::string Line;
+		FileObject.open(Path.c_str());
+		int Char = 0;
+		if (FileObject.is_open())
+		while (FileObject)
+		{
+			ObjectImage += Line;
+			std::getline(FileObject, Line);
+		}	
+		FileObject.close();
+
+		std::string colour;
+		int Image = 0;
+		for (int i = 0; i < ObjectImage.length(); i++)
+		{
+			if (ObjectImage[i] == Seperator)
+			{
+				Obj.Image[Image] = std::stoi(colour);
+				colour = "0";
+				Image++;
+			}
+			else
+				colour += ObjectImage[i];
+		}
+		return Obj;
+	}
 
 	virtual void RunOnce() = 0;
 	virtual void Main(float ElapsedTime) = 0;

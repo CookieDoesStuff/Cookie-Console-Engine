@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-class game : public CookieConsoleEngine
+class window : public CookieConsoleEngine
 {
   //declare the Player object
 	Object Player;
@@ -45,7 +45,7 @@ class game : public CookieConsoleEngine
 
 int main()
 {
-	game game;
-	game.ConsoleInit(L"Objects");
+	window window;
+	window.ConsoleInit(L"Objects");
 	return 0;
 }

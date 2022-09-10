@@ -1,6 +1,7 @@
 /*
 TODO:
 fix Object Importing(fixed)(there might be bugs though Im makingn an image editor for the ImportObjectImage method)
+detecting key presses and releases
 add gui
 */
 
@@ -167,6 +168,11 @@ public:
 		int y = Object.y;
 		for (int i = 0; i < 255; i++)
 		{
+			if (!std::div(i, 16).rem)
+			{
+				y++;
+				x = Object.x;
+			}
 			if (Object.Image[i] == IMAGE_NEW_LINE)
 			{
 				y++;
@@ -339,7 +345,6 @@ public:
 				return Error(L"Could not set the font size");
 		}
 
-
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(Console, &csbi))
 			return Error(L"Could not get the console screen buffer info");
@@ -361,7 +366,7 @@ public:
 		}
 
 		MainThread();
-
+		
 		return 1;
 	}
 };

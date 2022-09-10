@@ -1,7 +1,8 @@
 /*
 TODO:
 fix Object Importing(fixed)(there might be bugs though Im makingn an image editor for the ImportObjectImage method)
-detecting key presses and releases
+make an object image editor(done)(at the ObjectImageCreator.cpp file but the image editor is very basic and it saves the file OBJECT_IMAGE where ever the source file is at)
+detecting key presses and releases(on hold)(I will combine this with the gui)
 add gui
 */
 
@@ -11,6 +12,7 @@ add gui
 #include <Windows.h>
 #include <chrono>
 #include <string>
+#include <stdlib.h>
 #include <fstream>
 
 enum COLOUR
@@ -49,9 +51,17 @@ enum COLOUR
 	BG_WHITE = 0x00F0,
 };
 
+enum MOUSEBUTTONS
+{
+	MRIGHT = 0x02,
+	MLEFT = 0x01,
+	MMIDDLEBUTTON = 0x04,
+	MBUTTON1 = 0x05,
+	MBUTTON2 = 0x06
+};
+
 enum IMAGEPROPERTIES
 {
-	IMAGE_END = 0x656E64,
 	IMAGE_NEW_LINE = 0x6E6C
 };
 
@@ -63,11 +73,16 @@ enum BLOCKTYPE
 	BLOCK_TYPE_SHADED3 = 0x2591
 };
 
+//engine core
 class CookieConsoleEngine
 {
 private:
 	SMALL_RECT r = { 0, 0, 1, 1 };
 	HANDLE ConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+	HANDLE Console;
+	LPCWSTR title;
+	HWND console = GetConsoleWindow();
+	bool Mouse = false;
 	int Error(const wchar_t* Error)
 	{
 		wchar_t buf[256];
@@ -79,10 +94,9 @@ public:
 	int ScreenWidth;
 	int ScreenHeight;
 	int FontSize;
-	HANDLE Console;
 	CHAR_INFO* Canvas;
 	int* Colour;
-	LPCWSTR title;
+	POINT MousePos;
 
 	int Render()
 	{
@@ -90,6 +104,7 @@ public:
 		return 1;
 	}
 
+	//drawing to the screen
 	void Clear()
 	{
 		for (int y = 0; y < ScreenHeight; y++)
@@ -155,6 +170,7 @@ public:
 		Fill(EndX, StartY, EndX + 1, EndY, colour, CHAR);
 	}
 
+	//objects
 	struct Object
 	{
 		float x, y;
@@ -178,9 +194,7 @@ public:
 				y++;
 				x = Object.x;
 			}
-			if (Object.Image[i] == IMAGE_END)
-				break;
-			if (Object.Image[i] != IMAGE_END && Object.Image[i] != IMAGE_NEW_LINE)
+			if (Object.Image[i] != IMAGE_NEW_LINE)
 			{
 				x++;
 				Draw(x, y, Object.Image[i]);
@@ -219,6 +233,29 @@ public:
 		return Obj;
 	}
 
+	//gui and mouse releated stuff
+	int MouseInit()
+	{
+		if (!SetConsoleMode(ConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
+			return Error(L"Could not enable mouse input");
+		Mouse = true;
+		return 1;
+	}
+
+	bool MouseKeyPressed(MOUSEBUTTONS button)
+	{
+		//check for clicks if the mouse is initialized
+		if (!Mouse)
+		{
+			return Error(L"First initialize the mouse");
+		}
+
+		if (GetAsyncKeyState(button))
+			return true;
+		else
+			return false;
+	}
+
 	virtual void RunOnce() = 0;
 	virtual void Main(float ElapsedTime) = 0;
 private:
@@ -237,6 +274,15 @@ private:
 			std::wstring WstringTitle(title);
 			WstringTitle += fps.c_str();
 			SetConsoleTitleW(WstringTitle.c_str());
+			//I edited a bit of the code but I feel like I need to give my sources so
+			//this bit of code is from https://github.com/OneLoneCoder/videos/blob/master/olcConsoleGameEngine.h
+			INPUT_RECORD input;
+			DWORD events = 0;
+			GetNumberOfConsoleInputEvents(ConsoleIn, &events);
+			if (events > 0)
+				ReadConsoleInput(ConsoleIn, &input, events, &events);
+			MousePos.x = input.Event.MouseEvent.dwMousePosition.X;
+			MousePos.y = input.Event.MouseEvent.dwMousePosition.Y;
 			Main(ElapsedTime);
 		}
 	}
@@ -304,7 +350,6 @@ public:
 		Canvas = new CHAR_INFO[ScreenWidth * ScreenHeight];
 		Colour = new int[ScreenWidth * ScreenHeight];
 		title = Title;
-		HWND console = GetConsoleWindow();
 		Console = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 		SetConsoleWindowInfo(Console, TRUE, &r);
@@ -356,8 +401,6 @@ public:
 		r = { 0, 0, (short)ScreenWidth - 1, (short)ScreenHeight - 1 };
 		if (!SetConsoleWindowInfo(Console, TRUE, &r))
 			return Error(L"Could not set the console window info");
-		if (!SetConsoleMode(ConsoleIn, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT))
-			return Error(L"Could not enable mouse input");
 
 		for (int i = 0; i < ScreenWidth * ScreenHeight; i++)
 		{

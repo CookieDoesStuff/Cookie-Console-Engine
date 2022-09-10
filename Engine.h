@@ -91,9 +91,9 @@ private:
 	}
 
 public:
-	int ScreenWidth;
-	int ScreenHeight;
-	int FontSize;
+	short ScreenWidth;
+	short ScreenHeight;
+	short FontSize;
 	CHAR_INFO* Canvas;
 	int* Colour;
 	POINT MousePos;
@@ -276,13 +276,20 @@ private:
 			SetConsoleTitleW(WstringTitle.c_str());
 			//I edited a bit of the code but I feel like I need to give my sources so
 			//this bit of code is from https://github.com/OneLoneCoder/videos/blob/master/olcConsoleGameEngine.h
-			INPUT_RECORD input;
-			DWORD events = 0;
-			GetNumberOfConsoleInputEvents(ConsoleIn, &events);
-			if (events > 0)
-				ReadConsoleInput(ConsoleIn, &input, events, &events);
-			MousePos.x = input.Event.MouseEvent.dwMousePosition.X;
-			MousePos.y = input.Event.MouseEvent.dwMousePosition.Y;
+			if (Mouse)
+			{
+				INPUT_RECORD input[32];
+				DWORD events = 0;
+				GetNumberOfConsoleInputEvents(ConsoleIn, &events);
+				if (events > 0)
+					ReadConsoleInput(ConsoleIn, input, events, &events);
+				for (DWORD i = 0; i < events; i++)
+				{
+					MousePos.x = input[i].Event.MouseEvent.dwMousePosition.X;
+					MousePos.y = input[i].Event.MouseEvent.dwMousePosition.Y;
+				}
+				
+			}
 			Main(ElapsedTime);
 		}
 	}
@@ -337,7 +344,7 @@ public:
 		if (ScreenWidth > csbi.dwMaximumWindowSize.X)
 			return Error(L"Font Width is too big");
 
-		r = { 0, 0, (short)ScreenWidth - 1, (short)ScreenHeight - 1 };
+		r = { 0, 0, ScreenWidth - 1, ScreenHeight - 1 };
 		if (!SetConsoleWindowInfo(Console, TRUE, &r))
 			return Error(L"Could not set the console window info");
 	}
@@ -398,7 +405,7 @@ public:
 		if (ScreenWidth > csbi.dwMaximumWindowSize.X)
 			return Error(L"Font Width is too big");
 
-		r = { 0, 0, (short)ScreenWidth - 1, (short)ScreenHeight - 1 };
+		r = { 0, 0, ScreenWidth - 1, ScreenHeight - 1 };
 		if (!SetConsoleWindowInfo(Console, TRUE, &r))
 			return Error(L"Could not set the console window info");
 

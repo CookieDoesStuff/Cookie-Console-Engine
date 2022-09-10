@@ -68,19 +68,26 @@ class window : public CookieConsoleEngine
 		if (MousePos.x < 64 && MousePos.x  > 0 && MousePos.y > 0 && MousePos.y < 64)
 			if (MouseKeyPressed(MLEFT))
 				PixelColourBuffer[MousePos.y / 4 * 16 + MousePos.x / 4] = CurrentCol;
-		if (MousePos.x > 70 && GetColour(MousePos.x, MousePos.y) != 0x0 && MouseKeyPressed(MLEFT))
+		if (MousePos.x > 70 && MouseKeyPressed(MLEFT))
 		{
 			CurrentCol = GetColour(MousePos.x, MousePos.y);
 
 		}
-			
+		if (GetAsyncKeyState('S'))
+		{
+			std::ofstream outfile("Object.OBJECT_IMAGE");
+			for (int i = 0; i < 255; i++)
+				outfile << PixelColourBuffer[i] << " ";
+			outfile.close();
+		}
+
 		Clear();
 		//Draw the ui and the colours
 		for (int y = 0; y < 64; y++)
 			for (int x = 0; x < 64; x++)
 				Fill(x, y, x + 3, y + 3, PixelColourBuffer[y / 4 * 16 + x / 4]);
 		Fill(65, 0, 70, 70, BG_WHITE);
-		Fill(0,65, 70, 70, BG_WHITE);
+		Fill(0, 65, 70, 70, BG_WHITE);
 		int y = 0;
 		for (int col = 0; col < 240; col += 16)
 		{
@@ -91,10 +98,6 @@ class window : public CookieConsoleEngine
 		//Draw the cursor
 		//Fill(CursorX, CursorY, CursorX + 4, CursorY + 4, BG_WHITE);
 		Render();
-		std::ofstream outfile("Object.OBJECT_IMAGE");
-		for (int i = 0; i < 255; i++)
-			outfile << PixelColourBuffer[i] << " ";
-		outfile.close();
 	}
 };
 

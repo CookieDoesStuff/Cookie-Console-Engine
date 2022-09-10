@@ -1,28 +1,28 @@
-/*
-I probably wont add mouse input to this(because Im too lazy) but who knows
-maybe sometime(probably tomorrow)
-*/
-
+//slightly altered version of the originial program
+//I just added support for mouse
 #include <thread>
 #include <fstream>
 #include "Engine.h"
 
 class window : public CookieConsoleEngine
 {
-	int PixelColourBuffer[256];
-	float CursorY = 0;
-	float CursorX = 0;
-	short Mode = 0;
-	short CurrentCol = 0;
-	short CurrentColSelected = 0;
+	int PixelColourBuffer[256] = {0};
+	//float CursorY = 0;
+	//float CursorX = 0;
+	//short Mode = 0;
+	short CurrentCol = 16;
+	//short CurrentColSelected = 0;
 	virtual void RunOnce()
 	{
+		//initialize mouse input
+		MouseInit();
 		for (int i = 0; i < 256; i++)
 			PixelColourBuffer[i] = BG_BLACK;
 	}
 	virtual void Main(float ElapsedTime)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//we dont need this part as I will add mouse input
+		/*
 		if (GetAsyncKeyState('C'))
 			if (Mode == 0)
 				Mode = 1;
@@ -63,7 +63,17 @@ class window : public CookieConsoleEngine
 					CurrentColSelected += 6;
 				}
 		}
+		*/
 
+		if (MousePos.x < 64 && MousePos.x  > 0 && MousePos.y > 0 && MousePos.y < 64)
+			if (MouseKeyPressed(MLEFT))
+				PixelColourBuffer[MousePos.y / 4 * 16 + MousePos.x / 4] = CurrentCol;
+		if (MousePos.x > 70 && GetColour(MousePos.x, MousePos.y) != 0x0 && MouseKeyPressed(MLEFT))
+		{
+			CurrentCol = GetColour(MousePos.x, MousePos.y);
+
+		}
+			
 		Clear();
 		//Draw the ui and the colours
 		for (int y = 0; y < 64; y++)
@@ -76,12 +86,11 @@ class window : public CookieConsoleEngine
 		{
 			Fill(75, y, 80, y + 5, col);
 			y += 6;
-			DrawRect(74, CurrentColSelected, 80, CurrentColSelected + 5, BG_WHITE);
 		}
+		//I dont need this part either
 		//Draw the cursor
-		Fill(CursorX, CursorY, CursorX + 4, CursorY + 4, BG_WHITE);
+		//Fill(CursorX, CursorY, CursorX + 4, CursorY + 4, BG_WHITE);
 		Render();
-
 		std::ofstream outfile("Object.OBJECT_IMAGE");
 		for (int i = 0; i < 255; i++)
 			outfile << PixelColourBuffer[i] << " ";

@@ -1,3 +1,8 @@
+/*
+I probably wont add mouse input to this(because Im too lazy) but who knows
+maybe sometime(probably tomorrow)
+*/
+
 #include <thread>
 #include <fstream>
 #include "Engine.h"
